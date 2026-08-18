@@ -1,0 +1,101 @@
+site,plugin,version,status,type,abandonment,security,performance,replaceability,composite,notes
+Client A,popover,4.8.1,inactive,premium,5,3,2,5,15,PopUp Pro — product discontinued by vendor in 2019 (folded into Hustle); inactive; remove
+Client B,frameworkdeps,1.0,active,custom,4,3,4,4,15,"'Injects all framework dependencies' — 12 scripts + 6 styles enqueued sitewide (validationEngine, bootstrap-waitingfor); classic every-page-load anti-pattern"
+Client B,phpengine,1.0,active,custom,4,5,2,4,15,"'Runs PHP pages as menu items' — arbitrary-PHP-execution pattern, single file, active in prod; highest-priority custom plugin to retire"
+Client A,allow-multiple-accounts,3.0.4,active,free,5,4,1,4,14,"Not updated in 11 years, tested to WP 4.2, 9k installs; replace with a small filter"
+Client A,ultimate-branding,3.4.26,active,premium,2,5,3,4,14,"URGENT: Branda <= 3.4.29 unauth account takeover (CVE-2026-11551, CVSS 9.8; CVE-2025-14998 exploited in wild). White-labeling replaceable with small custom code"
+Client A,legacy-agency-hide-title,1.1,active,custom,5,3,1,5,14,Self-described 'temporary plugin' (2019) still active in prod; ~800 PHP files incl. bundled dev deps for a 1-function fix
+Client A,legacy-agency-headers-footers,1.0.1,active,custom,5,3,2,4,14,Per-page header/footer injection; overlaps code-snippets + tag manager; ~800 PHP files shipped
+Client A,livemesh-siteorigin-widgets,3.9.2,active,free,4,4,3,3,14,CLOSED on wordpress.org 2026-05-18 pending full review — no update channel while closed; audit which widgets are used
+Client A,addon-so-widgets-bundle,2.4.2,active,free,5,3,2,4,14,"Author states no longer developed; 7 years stale, tested to WP 5.2; audit usage and remove"
+Client B,category-redirect,1.0,active,custom,4,3,2,5,14,Single-file custom redirect logic parsing category descriptions; Redirection plugin (installed) already does this
+Client B,replace-http-with-https,1.2,active,custom,4,2,3,5,14,Rewrites http->https in content on every request; run a one-time DB search-replace and remove
+Client A,legacy-agency-genesis-extend,20200710,active,custom,5,3,2,3,13,"Legacy agency plugin, frozen since 2020; enqueues bootstrap + slick sitewide"
+Client A,legacy-agency-locations,2.2.1,active,custom,5,3,2,3,13,Maps/listings feature; ~950 PHP files shipped; candidate to fold into site plugin
+Client A,legacy-agency-directory,2.8,active,custom,5,3,3,2,13,"Load-bearing: core directory feature + 3 shortcodes in content. ~1,900 PHP files, ~19MB, ships PHPUnit + composer dev deps to prod"
+Client A,legacy-agency-responsive-menus,20191220,active,custom,5,3,2,3,13,Frozen since 2019; menu behavior belongs in the theme
+Client A,legacy-agency-shortcodes,1.0.4,active,custom,5,3,2,3,13,Shortcode set overlapping Shortcodes Ultimate; ~800 PHP files shipped
+Client A,legacy-agency-siteorigin-blocks,0.2.1,active,custom,5,3,2,3,13,SiteOrigin customizations; retires with the SiteOrigin stack
+Client B,changemaker,1.0,inactive,custom,4,3,1,5,13,"Custom staging/publishing tool, inactive; remove"
+Client B,client-b-tel-click,1.0,active,custom,4,2,3,4,13,Regex-rewrites phone numbers on every page render; theme filter or edge rule instead
+Client B,wp-cli-login-server,1.5,active,custom,3,4,1,5,13,Magic-login-link companion ACTIVE in production; deactivate outside deploy windows
+Client A,better-search-replace-pro,1.4.2,inactive,premium,3,3,1,5,12,"Inactive; free-version line had unauth PHP object injection (CVE-2023-6933, fixed 1.4.5) — remove; WP-CLI search-replace covers this"
+Client A,custom-css-js-pro,4.33,inactive,premium,3,2,2,5,12,Inactive; all 5 snippets already migrated to child theme — remove and drop license
+Client A,genesis-title-toggle,1.9.0,active,free,5,2,1,4,12,"CLOSED on wordpress.org (2024, author request); 8 years old; ~15 lines in the child theme replace it"
+Client A,hustle,7.8.8,active,premium,2,4,3,3,12,3 releases behind: arbitrary file upload + RCE-class fixes land in 7.8.9.3-7.8.11. Only 2 embeds in use; migrate then retire with WPMU DEV stack
+Client A,legacy-agency-functions,3.1.1,active,custom,5,3,1,3,12,Legacy agency plugin; vendor acquired twice since install (no update channel)
+Client A,legacy-agency-robots-txt,0.0.1,active,custom,5,2,1,4,12,v0.0.1 robots.txt editor; WP core robots filter or SEO plugin covers this
+Client A,unconfirmed,1.3.7,inactive,free,4,2,1,5,12,"Multisite activation tool, inactive, 1k installs; remove"
+Client B,events-address-fixer,1.0,active,custom,4,2,1,5,12,"Fixes addresses for The Events Calendar — which is no longer installed. Dead code, active; remove"
+Client B,client-b-schema,0.2.1,active,custom,4,3,1,4,12,Disables Yoast schema and takes over — two schema systems to reason about; pick one
+Client A,all-in-one-wp-migration,7.107,inactive,free,1,3,2,5,11,Inactive; path-traversal CVE fixed in 7.106 (this is 7.107); host provides backups — remove
+Client A,wp-carousel-pro,3.10.3,inactive,premium,2,2,2,5,11,Inactive; its settings still autoload and its weekly cron still fires — remove and clean up
+Client A,wpshapere,6.1.20,active,premium,3,2,2,4,11,Admin theme 2 major versions behind (v8 current); overlaps Branda; replace both with ~50 lines of branding code
+Client B,hook-profiler,1.0.0,inactive,custom,3,2,1,5,11,"Profiling tool in production plugin dir, inactive; remove from prod"
+Client B,mobilesearch,1.1,active,custom,4,2,1,4,11,Mobile search popup; belongs in the theme/design system
+Client B,client-b-breadcrumbs,1.8,active,custom,4,2,1,4,11,Yoast (installed) ships breadcrumbs; consolidate
+Client A,admin-menu-editor-pro,2.26.1,active,premium,2,2,2,4,10,7 releases behind (2.33.4 available); admin-menu tweaks replaceable with a few lines of code
+Client A,niche-vendor-embeds,1.4.x,active,free,4,2,2,2,10,"Third-party media embeds from a niche vendor; ~200 installs, tested to WP 6.1 — niche but business-critical; monitor"
+Client B,elementor-custom-query,1.0,active,custom,4,2,1,3,10,Single-file loop-grid filter; fold into site core plugin
+Client B,headers-security-advanced-hsts-wp,5.2.4,active,free,2,2,2,4,10,Security headers belong at the edge (Cloudflare — already managed by app-for-cf) or server config
+Client B,client-b-content-hub-results,1.0,active,custom,4,3,1,2,10,"Content-hub search results; keep function, fold into site core plugin"
+Client B,client-b-content-hub-search,1.0,active,custom,4,3,1,2,10,Content-hub search widget; fold into site core plugin
+Client B,shortcodes-ultimate,7.4.7,active,free,1,4,3,2,10,4 stored-XSS fixes land in 7.4.8-7.5.0; update. Shortcodes locked in content
+Client B,client-b-block-api,1.0,active,custom,4,2,1,3,10,"Blocks unauthenticated REST access; keep function, fold into site core plugin"
+Client B,client-b-cta,1.0,active,custom,4,2,1,3,10,CTA injection into Elementor headers; fold into site core plugin
+Client B,client-b-posts-in-cat,1.0,active,custom,4,2,1,3,10,Category article list shortcode; fold into site core plugin
+Client B,client-b-theme-selector,1.0,active,custom,4,2,1,3,10,Custom Elementor display conditions; fold into site core plugin
+Client B,client-b-toc,1.0,active,custom,4,2,1,3,10,Alphabetical index shortcode; fold into site core plugin
+Client B,wp-codespace,-,inactive,custom,3,1,1,5,10,Empty plugin folder (0 PHP files); delete
+Client A,easy-accordion-pro,2.5.2,inactive,premium,2,2,2,3,9,Deactivated; 40 accordion records / 32 builder usages still need content migration before deletion
+Client A,easy-fancybox,2.3.22,active,free,1,1,3,4,9,Front-end JS sitewide; WP 6.4+ core lightbox covers image zoom for most cases
+Client A,shortcodes-ultimate-maker,1.5.15,active,premium,3,2,1,3,9,Paid add-on; retires when the 53 custom shortcodes migrate
+Client A,user-role-editor-pro,4.64.4,active,premium,2,3,1,3,9,Free line had CSRF->privesc <=4.64.3 (CVE-2024-12293); pro 4.64.4 patch status unconfirmed — verify. Role tweaks could be code
+Client A,wpmudev-updates,5.0.0,active,premium,2,2,2,3,9,WPMU DEV dashboard; only needed to license Hustle/Branda — falls away if that stack retires
+Client B,akeebabackupwp,9.0.6,active,free,2,2,2,3,9,"Distributed by vendor, not wp.org (no wp-admin update visibility); 9.1.8 current; deployment extractor script left in webroot — delete it"
+Client B,app-for-cf,1.9.6.2,active,free,2,2,2,3,9,Cloudflare control incl. edge caching; 1k installs; overlaps local page cache — pick one caching owner
+Client B,backwpup,5.6.1,inactive,free,1,2,1,5,9,Inactive second backup plugin (Akeeba active); remove
+Client B,forminator,1.49.0,active,free,1,4,2,2,9,7 releases behind: unauth file-read + stored-XSS fixes land in 1.55.x-1.56.2; update urgently. Overlaps Elementor Pro forms
+Client B,gmap-block,1.1.0,active,free,2,2,2,3,9,Maps block; third mapping approach on this site (uninstalled WP Go Maps options remain); consolidate
+Client B,client-b-saas-search,1.0,active,custom,4,2,1,2,9,Third-party search SaaS embed shortcode; fold into site core plugin
+Client A,akismet,5.7,inactive,free,1,1,1,5,8,Inactive; comments globally disabled by another plugin — remove
+Client A,code-snippets,3.9.6,active,free,1,3,2,2,8,"Stores executable PHP in DB; audit snippets, prefer version-controlled site plugin"
+Client A,hello-dolly,1.7.2,inactive,free,1,1,1,5,8,Ships with WP; remove
+Client A,onelogin-saml-sso,3.6.0,active,free,3,2,1,2,8,Patched against the 9.1 auth bypass (fixed 3.6.0) but only tested to WP 5.9; community-maintained after two corporate acquisitions; SSO is business-critical
+Client A,shortcodes-ultimate,7.8.4,active,free,1,2,3,2,8,145+ meta rows and 53 custom shortcodes locked in content — removal is a content-migration project
+Client A,siteorigin-premium,1.76.0,active,premium,1,1,2,4,8,"License paid for one addon (toggle visibility); replace addon with code, drop license"
+Client A,wordpress-importer,0.9.5,inactive,free,1,1,1,5,8,One-off tool; remove until needed
+Client B,easy-notification-bar,1.6.1,active,free,2,1,2,3,8,9k installs; a notice bar is ~30 lines in the theme or a design-system component
+Client B,elementor-pro,3.33.2,active,premium,1,2,3,2,8,Theme builder + forms capability; part of platform
+Client B,elementor,3.33.4,active,free,1,3,3,1,8,Platform. But 3.33.4 predates fixes now in 4.x line (stored XSS/priv-esc CVE-2026-6127 fixed 4.0.5) — upgrade path needed
+Client B,hello-dolly,1.7.2,inactive,free,1,1,1,5,8,Remove
+Client B,post-type-switcher,4.0.1,active,free,1,2,1,4,8,Admin one-off tool; deactivate between uses
+Client B,show-current-template,0.5.3,inactive,free,1,1,1,5,8,"Dev tool, inactive; remove from prod"
+Client B,wordpress-importer,0.9.5,inactive,free,1,1,1,5,8,One-off tool; remove until needed
+Client A,duplicate-page,4.5.9,active,free,1,2,1,3,7,Convenience tool; keep or replace with block-editor duplicate
+Client A,gtranslate,3.1.1,active,free,1,1,3,2,7,External translation service; business decision to keep
+Client A,siteorigin-panels,2.35.0,active,free,1,1,3,2,7,Page layouts depend on panels_data; long-term migration only
+Client A,so-widgets-bundle,1.74.2,active,free,1,1,3,2,7,Widget areas depend on it; retires with SiteOrigin stack
+Client B,gtranslate,3.0.9,active,free,1,1,3,2,7,External translation service; keep by business decision
+Client B,lightweight-accordion,1.6.0,active,free,1,1,1,4,7,Third accordion implementation available on this site; WP core Details block (6.3+) covers most cases
+Client B,limit-login-attempts-reloaded,2.26.26,inactive,free,1,2,1,3,7,Brute-force protection installed but DEACTIVATED — either activate or remove and rely on edge/WAF
+Client B,redirection,5.5.2,active,free,2,1,2,2,7,Solid; 5.9.0 current — update; absorb category-redirect into it
+Client B,user-role-editor,4.64.6,active,free,1,2,1,3,7,Patched past CVE-2024-12293 (<=4.64.3); audit whether still needed post-redesign
+Client B,wordpress-seo,26.5,active,free,1,3,2,1,7,Yoast 26.5: two stored-XSS advisories fixed by 26.9/28.1 — update; keep as the single SEO owner
+Client A,classic-widgets,0.3,active,free,2,1,1,2,6,Official; keep while SiteOrigin widget areas remain
+Client A,disable-comments,2.7.1,active,free,1,1,1,3,6,"Could be ~20 lines of code, but low cost to keep"
+Client A,enable-media-replace,4.2.2,active,free,1,2,1,2,6,Useful editorial tool; keep
+Client A,imagify,2.3.x,active,free,1,1,2,2,6,Image optimization; evaluate vs host-level optimization
+Client A,redirection,5.9.0,active,free,1,1,2,2,6,"Current, clean record; keep"
+Client A,wp-2fa-premium,3.1.1.2,active,premium,1,1,1,3,6,2FA policy currently do-not-enforce; decide policy or replace with free tier/SSO enforcement
+Client A,advanced-custom-fields,6.8.6,active,free,1,1,2,1,5,Core dependency; keep
+Client A,classic-editor,1.7.0,active,free,1,1,1,2,5,Official; keep while content depends on classic editing
+Client A,wp-mail-smtp,4.9.0,active,free,1,1,1,2,5,Deliverability; keep
+Client A,wp-rocket,3.23.1,active,premium,1,1,1,2,5,Primary page cache; performing well; keep
+Client A,wordpress-seo,28.1,active,free,1,1,2,1,5,"Yoast, current (28.1 fixes the recent stored-XSS line); keep"
+Client B,advanced-custom-fields,6.7.0,active,free,1,1,2,1,5,Core dependency; keep (update: repo one minor behind)
+Client B,redis-cache,2.7.0,active,free,1,1,1,2,5,Object cache + dropin; legitimate pairing with a page cache; keep
+Client B,wp-super-cache,3.0.3,active,free,1,1,1,2,5,"Page cache, clean record at this version; but site also carries W3TC, LiteSpeed and Docket Cache remnants + Cloudflare edge — one owner needed"
+Client A,client-a-custom,0.1.0,active,custom,1,1,1,1,4,Current agency's site plugin (custom interactive feature); the consolidation target
+Client B,client-b-core,0.1.0,inactive,custom,1,1,1,1,4,New agency redesign content model — the consolidation target (not yet activated)
+Client B,client-b-elementor-components,0.1.0,inactive,custom,1,1,1,1,4,New agency design-system components (redesign in progress)

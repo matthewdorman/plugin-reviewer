@@ -13,3 +13,6 @@ __pycache__/
 # Scratch
 *.bak
 tmp/
+
+# Built release artifacts
+/dist/

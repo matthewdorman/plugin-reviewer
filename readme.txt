@@ -1,10 +1,10 @@
 === Plugin Reviewer ===
 Contributors: matthewdorman
-Tags: plugins, audit, performance, maintenance, integrity
+Tags: plugins, themes, audit, performance, integrity
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Read-only evidence for reviewing a WordPress plugin stack.
 
 == Description ==
 
-Plugin Reviewer checks official WordPress core checksums; inventories standard, must-use, and drop-in plugins; cross-references public plugins with WordPress.org; provides explainable abandonment indicators; and audits autoloaded options using a candidate-orphan heuristic.
+Plugin Reviewer checks official WordPress core checksums; inventories plugins; cross-references public plugins with WordPress.org; provides explainable abandonment indicators; audits autoloaded options; and builds a bounded static PHP inventory for the active parent and child themes.
 
 It does not deactivate, delete, or modify plugins or their data. The plugin is a flashlight, not a judge: a human reviews the evidence and decides what to do.
 
@@ -36,7 +36,15 @@ Public plugin slugs and the installed WordPress version/package locale are queri
 
 Expected core files are checked against the official checksums for the installed WordPress version and package locale. Unexpected files are enumerated only in `wp-admin` and `wp-includes`; `wp-content` and unrelated site-root files are intentionally excluded. Unsupported custom/development builds, unavailable checksums, unreadable files, symlinks, and scan limits produce an incomplete or unsupported status rather than a clean result.
 
+= Does theme analysis execute theme code? =
+
+No. It uses PHP tokenization only and never loads or executes a theme file. Active parent and child themes are reported separately. Dynamic callbacks remain unresolved, large functions.php signals are descriptive rather than vulnerabilities, and exclusions, read errors, and limits are shown in coverage notes.
+
 == Changelog ==
+
+= 0.3.0 =
+* Add bounded static analysis for active parent and child theme PHP.
+* Inventory class-heavy architectures, monolithic functions.php files, literal callbacks, includes, and common WordPress APIs with explicit coverage.
 
 = 0.2.0 =
 * Add a bounded, read-only WordPress core integrity scan with explicit coverage status.

@@ -24,6 +24,9 @@ jobs:
       - name: Run core integrity fixture tests
         run: php tests/test-core-integrity-auditor.php
 
+      - name: Run theme analyzer fixture tests
+        run: php tests/test-theme-auditor.php
+
       - name: Verify tag matches plugin version
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash

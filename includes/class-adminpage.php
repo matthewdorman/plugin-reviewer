@@ -95,9 +95,31 @@ class AdminPage {
 			<?php $this->render_core( $report['core'] ); ?>
 			<h2><?php echo esc_html__( 'Plugin inventory', 'plugin-reviewer' ); ?></h2>
 			<?php $this->render_plugins( $report['plugins'] ); ?>
+			<h2><?php echo esc_html__( 'Active theme source inventory', 'plugin-reviewer' ); ?></h2>
+			<?php $this->render_themes( $report['themes'] ); ?>
 			<h2><?php echo esc_html__( 'Autoloaded options', 'plugin-reviewer' ); ?></h2>
 			<?php $this->render_options( $report['options'] ); ?>
 		</div>
+		<?php
+	}
+
+	/** Render bounded static theme evidence. */
+	private function render_themes( $themes ) {
+		?>
+		<div class="plugin-reviewer-summary">
+			<p><strong><?php echo esc_html__( 'Coverage:', 'plugin-reviewer' ); ?></strong> <?php echo esc_html( $themes['status'] ); ?> — <?php echo esc_html( sprintf( __( '%1$d of %2$d PHP files scanned (%3$s).', 'plugin-reviewer' ), $themes['coverage']['files_scanned'], $themes['coverage']['files_discovered'], size_format( $themes['coverage']['bytes_scanned'] ) ) ); ?></p>
+			<?php foreach ( $themes['themes'] as $theme ) : ?>
+				<p><strong><?php echo esc_html( $theme['role'] . ': ' . $theme['slug'] ); ?></strong> <?php echo esc_html( sprintf( __( '%1$d files, %2$d lines, %3$d classes, %4$d methods, %5$d functions.', 'plugin-reviewer' ), $theme['files'], $theme['loc'], $theme['classes'], $theme['methods'], $theme['functions'] ) ); ?></p>
+			<?php endforeach; ?>
+		</div>
+		<p class="description"><?php echo esc_html__( 'Static token inventory only: theme PHP is never loaded or executed. Vendor, node_modules, build, dist, cache, .git, symbolic links, files over 1 MiB, and work beyond the reported limits are excluded. Large functions.php findings are descriptive architecture signals, not vulnerabilities.', 'plugin-reviewer' ); ?></p>
+		<?php foreach ( array_merge( $themes['coverage']['skipped'], $themes['coverage']['errors'], $themes['coverage']['limits'] ) as $note ) : ?><p class="description"><?php echo esc_html( $note ); ?></p><?php endforeach; ?>
+		<table class="widefat striped"><thead><tr><th><?php echo esc_html__( 'Theme / role', 'plugin-reviewer' ); ?></th><th><?php echo esc_html__( 'Category', 'plugin-reviewer' ); ?></th><th><?php echo esc_html__( 'Evidence', 'plugin-reviewer' ); ?></th><th><?php echo esc_html__( 'Callback / resolution', 'plugin-reviewer' ); ?></th></tr></thead><tbody>
+		<?php foreach ( $themes['findings'] as $finding ) : ?><tr>
+			<td><?php echo esc_html( $finding['theme'] . ' / ' . $finding['role'] ); ?></td><td><?php echo esc_html( $finding['category'] ); ?></td>
+			<td><code><?php echo esc_html( $finding['file'] . ':' . $finding['line'] ); ?></code><br><?php echo esc_html( $finding['name'] . ( $finding['owner'] ? ' (' . $finding['owner'] . ')' : '' ) ); ?></td>
+			<td><?php echo esc_html( ( $finding['callback'] ? $finding['callback'] . ' / ' : '' ) . $finding['resolution'] ); ?></td>
+		</tr><?php endforeach; ?></tbody></table>
 		<?php
 	}
 
@@ -284,6 +306,12 @@ class AdminPage {
 		}
 		foreach ( $report['plugins'] as $plugin ) {
 			$this->write_csv_row( $output, array( 'plugin', $plugin['name'], $plugin['slug'], $plugin['version'], $plugin['status'], $plugin['type'], $plugin['wporg']['last_updated'], $plugin['wporg']['tested_up_to'], $plugin['wporg']['active_installs'], $plugin['wporg']['closed'] ? 'yes' : 'no', $plugin['score']['score'], implode( ' ', $plugin['score']['reasons'] ), '' ) );
+		}
+		foreach ( $report['themes']['findings'] as $finding ) {
+			$this->write_csv_row( $output, array( 'theme', $finding['name'], $finding['theme'] . ' / ' . $finding['role'], $finding['file'] . ':' . $finding['line'], $report['themes']['status'], $finding['category'], '', '', '', '', '', ( $finding['callback'] ? $finding['callback'] . '; ' : '' ) . $finding['resolution'], '' ) );
+		}
+		foreach ( array_merge( $report['themes']['coverage']['skipped'], $report['themes']['coverage']['errors'], $report['themes']['coverage']['limits'] ) as $note ) {
+			$this->write_csv_row( $output, array( 'theme_coverage', 'Theme scan coverage', '', $report['themes']['coverage']['files_scanned'] . '/' . $report['themes']['coverage']['files_discovered'], $report['themes']['status'], '', '', '', '', '', '', $note, '' ) );
 		}
 		foreach ( $report['options']['all_options'] as $option ) {
 			$this->write_csv_row( $output, array( 'autoloaded_option', $option['name'], $option['attributed_plugin'], $option['bytes'], '', '', '', '', '', '', '', '', $option['candidate_orphan'] ? 'yes' : 'no' ) );

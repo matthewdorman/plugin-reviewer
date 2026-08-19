@@ -48,7 +48,8 @@ final class Plugin {
 			new WporgClient(),
 			new AbandonmentScorer(),
 			new OptionsAuditor(),
-			new CoreIntegrityAuditor( new CoreChecksumClient() )
+			new CoreIntegrityAuditor( new CoreChecksumClient() ),
+			new ThemeAuditor()
 		);
 		$admin_page = new AdminPage( $report );
 		$admin_page->register();
@@ -66,6 +67,7 @@ final class Plugin {
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-optionsauditor.php';
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-corechecksumclient.php';
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-coreintegrityauditor.php';
+		require_once PLUGIN_REVIEWER_DIR . 'includes/class-themeauditor.php';
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-report.php';
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-adminpage.php';
 	}

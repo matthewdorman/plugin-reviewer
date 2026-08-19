@@ -4,8 +4,8 @@
 
 Plugin Reviewer gives WordPress administrators a read-only WordPress core
 integrity check, an inventory of installed plugins, public WordPress.org
-maintenance signals, explainable abandonment indicators, and an
-autoloaded-options report. It does not repair core, deactivate plugins, delete
+maintenance signals, explainable abandonment indicators, an autoloaded-options
+report, and a bounded static PHP inventory for active themes. It does not repair core, deactivate plugins, delete
 options, or change site configuration.
 
 > Download `plugin-reviewer.zip` from the release link above. Do **not** use
@@ -50,6 +50,21 @@ network capability.
 - “Candidate orphan” and abandonment scores are evidence for human review, not
   cleanup instructions. Confirm ownership and business impact before making any
   site change.
+- Active parent and child themes are recursively inventoried and attributed
+  separately. `functions.php` is scanned first, including when unusually large,
+  while class-heavy source is indexed for namespaces, classes, interfaces,
+  traits, functions, methods, literal includes, and common WordPress APIs.
+- Theme analysis uses `token_get_all()` only. It never includes, requires, evals,
+  instantiates, or executes theme code. Callback ownership is linked only when
+  literal token evidence supports it; dynamic expressions remain unresolved.
+- Theme scanning is capped at 1,000 PHP files, 1 MiB per file, 10 MiB total, and
+  eight seconds. It does not follow symbolic links and excludes `.git`, `vendor`,
+  `node_modules`, `dist`, `build`, and `cache`. Coverage notes disclose skips,
+  read errors, and reached limits. Tokenization tolerates malformed PHP, so this
+  is an inventory rather than syntax validation.
+- A large or high-responsibility `functions.php` produces a descriptive
+  architecture signal, never a vulnerability finding. Bundled-library ownership
+  is not guessed beyond the relative source path.
 
 Large plugin stacks or a slow connection to WordPress.org can make the first page
 load take longer. Each directory request has an eight-second timeout; unavailable
@@ -110,7 +125,7 @@ Python, tests, and development configuration cannot leak into the package.
 
 Before tagging a release, update the version in `plugin-reviewer.php` and the
 stable tag/changelog in `readme.txt`. Push a tag matching that version, such as
-`v0.2.0`. The GitHub Actions workflow lints PHP, runs isolated integrity fixtures,
+`v0.3.0`. The GitHub Actions workflow lints PHP, runs isolated core and theme fixtures,
 verifies the tag/version match,
 builds and validates `plugin-reviewer.zip`, and attaches it to a GitHub Release.
 

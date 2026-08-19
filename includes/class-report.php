@@ -52,6 +52,13 @@ class Report {
 	private $core;
 
 	/**
+	 * Theme source auditor.
+	 *
+	 * @var ThemeAuditor
+	 */
+	private $themes;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Inventory            $inventory Inventory collector.
@@ -59,13 +66,15 @@ class Report {
 	 * @param AbandonmentScorer    $scorer Scorer.
 	 * @param OptionsAuditor       $options Options auditor.
 	 * @param CoreIntegrityAuditor $core    Core integrity auditor.
+	 * @param ThemeAuditor         $themes  Theme source auditor.
 	 */
-	public function __construct( Inventory $inventory, WporgClient $wporg, AbandonmentScorer $scorer, OptionsAuditor $options, CoreIntegrityAuditor $core ) {
+	public function __construct( Inventory $inventory, WporgClient $wporg, AbandonmentScorer $scorer, OptionsAuditor $options, CoreIntegrityAuditor $core, ThemeAuditor $themes ) {
 		$this->inventory = $inventory;
 		$this->wporg     = $wporg;
 		$this->scorer    = $scorer;
 		$this->options   = $options;
 		$this->core      = $core;
+		$this->themes    = $themes;
 	}
 
 	/**
@@ -101,6 +110,7 @@ class Report {
 			'plugins'      => $plugins,
 			'options'      => $this->options->audit( $plugins ),
 			'core'         => $this->core->audit(),
+			'themes'       => $this->themes->audit(),
 		);
 	}
 }

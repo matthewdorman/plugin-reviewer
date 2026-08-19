@@ -1,0 +1,18 @@
+/**
+ * Plugin Reviewer admin styles.
+ *
+ * @package PluginReviewer
+ */
+
+.plugin-reviewer .widefat {
+	margin: 12px 0 28px;
+}
+
+.plugin-reviewer .widefat th {
+	font-weight: 600;
+}
+
+.plugin-reviewer-summary {
+	display: flex;
+	gap: 32px;
+}

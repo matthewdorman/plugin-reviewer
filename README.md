@@ -1,57 +1,111 @@
-# Plugin Stack Audit
+# Plugin Reviewer
 
-An anonymized field audit of 100 WordPress plugins across two production client
-sites, plus the feature map it produced for a WordPress audit plugin.
+**[Download the installable plugin ZIP](https://github.com/matthewdorman/plugin-reviewer/releases/latest/download/plugin-reviewer.zip)**
 
-All client data is **anonymized** ("Client A" / "Client B"). No client names, URLs,
-hostnames, or IPs appear anywhere in this repository. Niche or client-specific
-plugin names and business functions have been generalized, and unusually precise
-counts rounded, to reduce fingerprinting risk — the remaining inventory is real but
-deliberately less unique. A sufficiently determined reader with inside knowledge of
-a specific site could still recognize it; review before making this repository
-public.
+Plugin Reviewer gives WordPress administrators a read-only inventory of installed
+plugins, public WordPress.org maintenance signals, explainable abandonment
+indicators, and an autoloaded-options report. It does not deactivate plugins,
+delete options, or change site configuration.
 
-## Contents
+> Download `plugin-reviewer.zip` from the release link above. Do **not** use
+> GitHub's automatically generated “Source code” archives; those contain
+> contributor tools and are not the supported WordPress installation package.
 
-| Path | What it is |
-|------|-----------|
-| `dashboard/plugin-audit-dashboard.html` | Full audit results styled as the wp-admin page the audit plugin would render. Doubles as the plugin UI mockup. |
-| `data/plugin-inventory.csv` | One row per plugin (100 rows): version, status, type, wordpress.org metadata, 1–5 risk scores. |
-| `data/risk-matrix.csv` | Same population sorted by composite risk score, with scoring rationale. |
-| `tools/` | Generators. `build_data.py` holds the dataset and emits the CSVs; `generate_dashboard.py` builds the dashboard. |
+## Install and run the audit
 
-## Rebuilding
+1. Download `plugin-reviewer.zip` from the [latest GitHub Release](https://github.com/matthewdorman/plugin-reviewer/releases/latest).
+2. Sign in to WordPress as an administrator.
+3. Go to **Plugins → Add New Plugin → Upload Plugin**.
+4. Choose `plugin-reviewer.zip`, select **Install Now**, and then **Activate Plugin**.
+5. Go to **Tools → Plugin Reviewer**. Opening this screen runs the read-only audit and displays the current results.
+6. Review the evidence on screen. Select **Export report CSV** to download a copy for further review or safe sharing.
+
+The plugin requires WordPress 6.0 or newer, PHP 7.4 or newer, and a user with the
+`activate_plugins` capability. On multisite, use an account with the equivalent
+network capability.
+
+## What to expect
+
+- The audit inventories standard, must-use, and drop-in plugins.
+- Public plugin slugs are sent to `api.wordpress.org` to retrieve public directory
+  metadata. No option values, usernames, URLs, content, telemetry, or report data
+  are transmitted.
+- WordPress.org responses are cached for 12 hours and local option-analysis results
+  for one hour. Uninstalling removes Plugin Reviewer transients.
+- The options report reads option names and serialized byte sizes. It never reads
+  option values into the report and never modifies or deletes an option.
+- “Candidate orphan” and abandonment scores are evidence for human review, not
+  cleanup instructions. Confirm ownership and business impact before making any
+  site change.
+
+Large plugin stacks or a slow connection to WordPress.org can make the first page
+load take longer. Each directory request has an eight-second timeout; unavailable
+metadata is shown as **Unavailable** and can be retried by reloading later. If the
+page hits a hosting timeout or memory limit, ask the host to temporarily raise the
+wp-admin PHP execution limit, then reload the report. Cached responses make later
+runs faster.
+
+## Troubleshooting
+
+- **WordPress says the package is invalid:** confirm the downloaded file is the
+  release asset named `plugin-reviewer.zip`, not a GitHub source-code archive.
+- **Tools → Plugin Reviewer is missing:** confirm the plugin is active and the
+  signed-in account can activate plugins.
+- **Directory details say “Unavailable”:** verify that the server can make outbound
+  HTTPS requests to `api.wordpress.org`, then retry later.
+- **The page times out:** retry once to benefit from cached directory results. For
+  unusually large stacks, check the host's PHP execution-time and memory limits.
+- **Export does not start:** sign in again and retry. CSV export requires the same
+  administrator capability and a valid WordPress security nonce.
+
+Deactivating the plugin stops its admin screen but retains temporary caches until
+they expire. Deleting it through WordPress runs `uninstall.php`, which removes only
+Plugin Reviewer transients. It does not remove or alter data belonging to other
+plugins.
+
+## Contributor development
+
+`main` contains the complete, releasable source. Work in short-lived feature
+branches and merge through pull requests; there is no long-lived development or
+generated distribution branch.
+
+The Python scripts and anonymized field-audit dataset are contributor/reference
+material only. They are never included in the installable plugin ZIP and are not
+required on a WordPress site.
+
+Rebuild the reference dataset and dashboard (Python 3.8+, standard library only):
 
 ```bash
 cd tools
-python3 build_data.py            # regenerates ../data/*.csv
-python3 generate_dashboard.py    # regenerates ../dashboard/
+python3 build_data.py
+python3 generate_dashboard.py
 ```
 
-Python 3.8+ standard library only — no dependencies.
+Build and validate the exact release artifact locally:
 
-## Data provenance
+```bash
+./scripts/build-release.sh
+./scripts/validate-release.sh dist/plugin-reviewer.zip
+```
 
-- **Client A** — live WP-CLI against production (plugin list, autoloaded options,
-  cron, hook counts), plus codebase scan; collected 2026-08-05.
-- **Client B** — repository scan of `wp-content/plugins/` plus a parse of the
-  options table and `active_plugins` from a database dump dated 2026-02-12.
-- **wordpress.org** — plugin info API (last updated, tested-up-to, active installs,
-  closed status), retrieved 2026-08-05.
-- **Vulnerability flags** — public advisories (WPScan, Patchstack, Wordfence pages),
-  retrieved 2026-08-05. Version-specific findings were reported to both clients on
-  audit day, ahead of any public presentation.
+The build uses standard shell tools plus `zip` and `unzip`. It copies an explicit
+allowlist of runtime files into a clean staging directory, so repository data,
+Python, tests, and development configuration cannot leak into the package.
 
-Risk scores (abandonment / security / performance / replaceability, 1–5 each) are
-judgment calls informed by that data; the scoring rationale for every plugin is in
-`data/risk-matrix.csv`.
+Before tagging a release, update the version in `plugin-reviewer.php` and the
+stable tag/changelog in `readme.txt`. Push a tag matching that version, such as
+`v0.1.0`. The GitHub Actions workflow lints PHP, verifies the tag/version match,
+builds and validates `plugin-reviewer.zip`, and attaches it to a GitHub Release.
 
-## Accessibility
+## Repository reference material
 
-The dashboard aims for WCAG 2.1 AA: semantic landmarks, the ARIA tabs pattern with
-roving tabindex and arrow-key support, visible focus indicators, and text contrast
-at or above AA. Reviewed internally against AA; not yet audited with assistive
-technology by end users.
+| Path | Purpose |
+| --- | --- |
+| `plugin-reviewer.php`, `includes/`, `assets/`, `languages/` | Production plugin source |
+| `scripts/` | Reproducible release build and validation |
+| `dashboard/` | Anonymized field-audit dashboard and UI reference |
+| `data/` | Anonymized field-audit CSV data |
+| `tools/` | Python generators for the reference material |
 
 ## License
 

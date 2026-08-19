@@ -1,0 +1,63 @@
+name: Build release
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Lint PHP
+        run: find . -path './dist' -prune -o -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Verify tag matches plugin version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          plugin_version="$(sed -n "s/^ \* Version:[[:space:]]*//p" plugin-reviewer.php | head -1)"
+          test "${GITHUB_REF_NAME}" = "v${plugin_version}" || {
+            echo "Tag ${GITHUB_REF_NAME} does not match plugin version v${plugin_version}." >&2
+            exit 1
+          }
+
+      - name: Build installable ZIP
+        run: ./scripts/build-release.sh
+
+      - name: Validate installable ZIP
+        run: ./scripts/validate-release.sh dist/plugin-reviewer.zip
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-reviewer
+          path: dist/plugin-reviewer.zip
+          if-no-files-found: error
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download installable ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-reviewer
+          path: dist
+
+      - name: Publish tagged GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/plugin-reviewer.zip --generate-notes --verify-tag

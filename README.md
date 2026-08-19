@@ -60,8 +60,8 @@ network capability.
 - Theme scanning is capped at 1,000 PHP files, 1 MiB per file, 10 MiB total, and
   eight seconds. It does not follow symbolic links and excludes `.git`, `vendor`,
   `node_modules`, `dist`, `build`, and `cache`. Coverage notes disclose skips,
-  read errors, and reached limits. Tokenization tolerates malformed PHP, so this
-  is an inventory rather than syntax validation.
+  read errors, parse failures, and reached limits. Files that fail PHP token
+  parsing are reported as incomplete coverage rather than partially inventoried.
 - A large or high-responsibility `functions.php` produces a descriptive
   architecture signal, never a vulnerability finding. Bundled-library ownership
   is not guessed beyond the relative source path.

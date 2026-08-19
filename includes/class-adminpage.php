@@ -103,19 +103,29 @@ class AdminPage {
 		<?php
 	}
 
-	/** Render bounded static theme evidence. */
+	/**
+	 * Render bounded static theme evidence.
+	 *
+	 * @param array<string,mixed> $themes Theme report.
+	 */
 	private function render_themes( $themes ) {
 		?>
 		<div class="plugin-reviewer-summary">
-			<p><strong><?php echo esc_html__( 'Coverage:', 'plugin-reviewer' ); ?></strong> <?php echo esc_html( $themes['status'] ); ?> — <?php echo esc_html( sprintf( __( '%1$d of %2$d PHP files scanned (%3$s).', 'plugin-reviewer' ), $themes['coverage']['files_scanned'], $themes['coverage']['files_discovered'], size_format( $themes['coverage']['bytes_scanned'] ) ) ); ?></p>
+			<p><strong><?php echo esc_html__( 'Coverage:', 'plugin-reviewer' ); ?></strong> <?php echo esc_html( $themes['status'] ); ?> — <?php echo esc_html( sprintf( /* translators: 1: scanned files, 2: discovered files, 3: scanned size. */ __( '%1$d of %2$d PHP files scanned (%3$s).', 'plugin-reviewer' ), $themes['coverage']['files_scanned'], $themes['coverage']['files_discovered'], size_format( $themes['coverage']['bytes_scanned'] ) ) ); ?></p>
 			<?php foreach ( $themes['themes'] as $theme ) : ?>
-				<p><strong><?php echo esc_html( $theme['role'] . ': ' . $theme['slug'] ); ?></strong> <?php echo esc_html( sprintf( __( '%1$d files, %2$d lines, %3$d classes, %4$d methods, %5$d functions.', 'plugin-reviewer' ), $theme['files'], $theme['loc'], $theme['classes'], $theme['methods'], $theme['functions'] ) ); ?></p>
+				<p><strong><?php echo esc_html( $theme['role'] . ': ' . $theme['slug'] ); ?></strong> <?php echo esc_html( sprintf( /* translators: 1: files, 2: lines, 3: classes, 4: methods, 5: functions. */ __( '%1$d files, %2$d lines, %3$d classes, %4$d methods, %5$d functions.', 'plugin-reviewer' ), $theme['files'], $theme['loc'], $theme['classes'], $theme['methods'], $theme['functions'] ) ); ?></p>
 			<?php endforeach; ?>
 		</div>
 		<p class="description"><?php echo esc_html__( 'Static token inventory only: theme PHP is never loaded or executed. Vendor, node_modules, build, dist, cache, .git, symbolic links, files over 1 MiB, and work beyond the reported limits are excluded. Large functions.php findings are descriptive architecture signals, not vulnerabilities.', 'plugin-reviewer' ); ?></p>
-		<?php foreach ( array_merge( $themes['coverage']['skipped'], $themes['coverage']['errors'], $themes['coverage']['limits'] ) as $note ) : ?><p class="description"><?php echo esc_html( $note ); ?></p><?php endforeach; ?>
+		<?php
+		foreach ( array_merge( $themes['coverage']['skipped'], $themes['coverage']['errors'], $themes['coverage']['limits'] ) as $note ) :
+			?>
+			<p class="description"><?php echo esc_html( $note ); ?></p><?php endforeach; ?>
 		<table class="widefat striped"><thead><tr><th><?php echo esc_html__( 'Theme / role', 'plugin-reviewer' ); ?></th><th><?php echo esc_html__( 'Category', 'plugin-reviewer' ); ?></th><th><?php echo esc_html__( 'Evidence', 'plugin-reviewer' ); ?></th><th><?php echo esc_html__( 'Callback / resolution', 'plugin-reviewer' ); ?></th></tr></thead><tbody>
-		<?php foreach ( $themes['findings'] as $finding ) : ?><tr>
+		<?php
+		foreach ( $themes['findings'] as $finding ) :
+			?>
+			<tr>
 			<td><?php echo esc_html( $finding['theme'] . ' / ' . $finding['role'] ); ?></td><td><?php echo esc_html( $finding['category'] ); ?></td>
 			<td><code><?php echo esc_html( $finding['file'] . ':' . $finding['line'] ); ?></code><br><?php echo esc_html( $finding['name'] . ( $finding['owner'] ? ' (' . $finding['owner'] . ')' : '' ) ); ?></td>
 			<td><?php echo esc_html( ( $finding['callback'] ? $finding['callback'] . ' / ' : '' ) . $finding['resolution'] ); ?></td>

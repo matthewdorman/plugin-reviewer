@@ -51,7 +51,11 @@ class Report {
 	 */
 	private $core;
 
-	/** @var ThemeAuditor */
+	/**
+	 * Theme source auditor.
+	 *
+	 * @var ThemeAuditor
+	 */
 	private $themes;
 
 	/**
@@ -62,6 +66,7 @@ class Report {
 	 * @param AbandonmentScorer    $scorer Scorer.
 	 * @param OptionsAuditor       $options Options auditor.
 	 * @param CoreIntegrityAuditor $core    Core integrity auditor.
+	 * @param ThemeAuditor         $themes  Theme source auditor.
 	 */
 	public function __construct( Inventory $inventory, WporgClient $wporg, AbandonmentScorer $scorer, OptionsAuditor $options, CoreIntegrityAuditor $core, ThemeAuditor $themes ) {
 		$this->inventory = $inventory;

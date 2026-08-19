@@ -91,11 +91,72 @@ class AdminPage {
 					<?php echo esc_html__( 'Export report CSV', 'plugin-reviewer' ); ?>
 				</a>
 			</p>
+			<h2><?php echo esc_html__( 'WordPress core integrity', 'plugin-reviewer' ); ?></h2>
+			<?php $this->render_core( $report['core'] ); ?>
 			<h2><?php echo esc_html__( 'Plugin inventory', 'plugin-reviewer' ); ?></h2>
 			<?php $this->render_plugins( $report['plugins'] ); ?>
 			<h2><?php echo esc_html__( 'Autoloaded options', 'plugin-reviewer' ); ?></h2>
 			<?php $this->render_options( $report['options'] ); ?>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Render core checksum and coverage evidence.
+	 *
+	 * @param array<string,mixed> $core Core integrity report.
+	 * @return void
+	 */
+	private function render_core( $core ) {
+		$labels = array(
+			'clean'       => __( 'Clean', 'plugin-reviewer' ),
+			'findings'    => __( 'Findings need review', 'plugin-reviewer' ),
+			'incomplete'  => __( 'Incomplete scan', 'plugin-reviewer' ),
+			'unsupported' => __( 'Unsupported build', 'plugin-reviewer' ),
+		);
+		$status = isset( $labels[ $core['status'] ] ) ? $labels[ $core['status'] ] : __( 'Unknown', 'plugin-reviewer' );
+		?>
+		<div class="plugin-reviewer-summary">
+			<p><strong><?php echo esc_html__( 'Status:', 'plugin-reviewer' ); ?></strong> <?php echo esc_html( $status ); ?></p>
+			<p><strong><?php echo esc_html__( 'Package:', 'plugin-reviewer' ); ?></strong> <?php echo esc_html( $core['version'] . ' / ' . $core['locale'] ); ?></p>
+			<p><strong><?php echo esc_html__( 'Findings:', 'plugin-reviewer' ); ?></strong>
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: 1: modified count, 2: missing count, 3: unexpected count, 4: read error count. */
+						__( '%1$d modified, %2$d missing, %3$d unexpected, %4$d read errors', 'plugin-reviewer' ),
+						$core['counts']['modified'],
+						$core['counts']['missing'],
+						$core['counts']['unexpected'],
+						$core['counts']['read_error']
+					)
+				);
+				?>
+			</p>
+		</div>
+		<p class="description"><?php echo esc_html__( 'Only wp-admin and wp-includes are checked for unexpected files. Site-root files and wp-content are intentionally excluded. No files are changed or exported.', 'plugin-reviewer' ); ?></p>
+		<?php if ( ! empty( $core['coverage']['reasons'] ) ) : ?>
+			<p><strong><?php echo esc_html__( 'Coverage notes:', 'plugin-reviewer' ); ?></strong> <?php echo esc_html( implode( ' ', $core['coverage']['reasons'] ) ); ?></p>
+		<?php endif; ?>
+		<?php if ( empty( $core['findings'] ) ) : ?>
+			<?php return; ?>
+		<?php endif; ?>
+		<table class="widefat striped">
+			<thead><tr>
+				<th><?php echo esc_html__( 'Finding', 'plugin-reviewer' ); ?></th>
+				<th><?php echo esc_html__( 'Relative path', 'plugin-reviewer' ); ?></th>
+				<th><?php echo esc_html__( 'Evidence', 'plugin-reviewer' ); ?></th>
+			</tr></thead>
+			<tbody>
+			<?php foreach ( $core['findings'] as $finding ) : ?>
+				<tr>
+					<td><?php echo esc_html( $finding['type'] ); ?></td>
+					<td><code><?php echo esc_html( $finding['path'] ); ?></code></td>
+					<td><?php echo esc_html( $this->core_finding_evidence( $finding ) ); ?></td>
+				</tr>
+			<?php endforeach; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 
@@ -214,16 +275,57 @@ class AdminPage {
 		if ( false === $output ) {
 			wp_die( esc_html__( 'The CSV stream could not be opened.', 'plugin-reviewer' ) );
 		}
-		fputcsv( $output, array( 'section', 'name', 'slug_or_owner', 'version_or_bytes', 'status', 'type', 'wporg_last_updated', 'wporg_tested_to', 'wporg_active_installs', 'closed', 'score', 'evidence', 'candidate_orphan' ) );
+		$this->write_csv_row( $output, array( 'section', 'name', 'slug_or_owner', 'version_or_bytes', 'status', 'type', 'wporg_last_updated', 'wporg_tested_to', 'wporg_active_installs', 'closed', 'score', 'evidence', 'candidate_orphan' ) );
+		foreach ( $report['core']['findings'] as $finding ) {
+			$this->write_csv_row( $output, array( 'core', $finding['path'], '', $report['core']['version'] . ' / ' . $report['core']['locale'], $report['core']['status'], $finding['type'], '', '', '', '', '', $this->core_finding_evidence( $finding ), '' ) );
+		}
+		if ( empty( $report['core']['findings'] ) || ! empty( $report['core']['coverage']['reasons'] ) ) {
+			$this->write_csv_row( $output, array( 'core_summary', 'WordPress core integrity', '', $report['core']['version'] . ' / ' . $report['core']['locale'], $report['core']['status'], '', '', '', '', '', '', implode( ' ', $report['core']['coverage']['reasons'] ), '' ) );
+		}
 		foreach ( $report['plugins'] as $plugin ) {
-			fputcsv( $output, array( 'plugin', $plugin['name'], $plugin['slug'], $plugin['version'], $plugin['status'], $plugin['type'], $plugin['wporg']['last_updated'], $plugin['wporg']['tested_up_to'], $plugin['wporg']['active_installs'], $plugin['wporg']['closed'] ? 'yes' : 'no', $plugin['score']['score'], implode( ' ', $plugin['score']['reasons'] ), '' ) );
+			$this->write_csv_row( $output, array( 'plugin', $plugin['name'], $plugin['slug'], $plugin['version'], $plugin['status'], $plugin['type'], $plugin['wporg']['last_updated'], $plugin['wporg']['tested_up_to'], $plugin['wporg']['active_installs'], $plugin['wporg']['closed'] ? 'yes' : 'no', $plugin['score']['score'], implode( ' ', $plugin['score']['reasons'] ), '' ) );
 		}
 		foreach ( $report['options']['all_options'] as $option ) {
-			fputcsv( $output, array( 'autoloaded_option', $option['name'], $option['attributed_plugin'], $option['bytes'], '', '', '', '', '', '', '', '', $option['candidate_orphan'] ? 'yes' : 'no' ) );
+			$this->write_csv_row( $output, array( 'autoloaded_option', $option['name'], $option['attributed_plugin'], $option['bytes'], '', '', '', '', '', '', '', '', $option['candidate_orphan'] ? 'yes' : 'no' ) );
 		}
 		// Closing the PHP output stream completes the download; WP_Filesystem does not support output streams.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $output );
 		exit;
+	}
+
+	/**
+	 * Write one spreadsheet-safe CSV row.
+	 *
+	 * @param resource         $output CSV stream.
+	 * @param array<int,mixed> $row    Values.
+	 * @return void
+	 */
+	private function write_csv_row( $output, $row ) {
+		$row = array_map(
+			static function ( $value ) {
+				$value = (string) $value;
+				return preg_match( '/^[=+\-@\t\r]/', $value ) ? "'" . $value : $value;
+			},
+			$row
+		);
+		fputcsv( $output, $row );
+	}
+
+	/**
+	 * Format checksum evidence without file contents or absolute paths.
+	 *
+	 * @param array<string,string> $finding Core finding.
+	 * @return string
+	 */
+	private function core_finding_evidence( $finding ) {
+		$evidence = $finding['rationale'];
+		if ( '' !== $finding['expected_hash'] ) {
+			$evidence .= ' ' . sprintf( /* translators: %s: expected MD5 checksum. */ __( 'Expected MD5: %s.', 'plugin-reviewer' ), $finding['expected_hash'] );
+		}
+		if ( '' !== $finding['actual_hash'] ) {
+			$evidence .= ' ' . sprintf( /* translators: %s: actual MD5 checksum. */ __( 'Actual MD5: %s.', 'plugin-reviewer' ), $finding['actual_hash'] );
+		}
+		return $evidence;
 	}
 }

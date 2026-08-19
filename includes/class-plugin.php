@@ -47,7 +47,8 @@ final class Plugin {
 			new Inventory(),
 			new WporgClient(),
 			new AbandonmentScorer(),
-			new OptionsAuditor()
+			new OptionsAuditor(),
+			new CoreIntegrityAuditor( new CoreChecksumClient() )
 		);
 		$admin_page = new AdminPage( $report );
 		$admin_page->register();
@@ -63,6 +64,8 @@ final class Plugin {
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-wporgclient.php';
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-abandonmentscorer.php';
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-optionsauditor.php';
+		require_once PLUGIN_REVIEWER_DIR . 'includes/class-corechecksumclient.php';
+		require_once PLUGIN_REVIEWER_DIR . 'includes/class-coreintegrityauditor.php';
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-report.php';
 		require_once PLUGIN_REVIEWER_DIR . 'includes/class-adminpage.php';
 	}

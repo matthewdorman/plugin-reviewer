@@ -2,10 +2,11 @@
 
 **[Download the installable plugin ZIP](https://github.com/matthewdorman/plugin-reviewer/releases/latest/download/plugin-reviewer.zip)**
 
-Plugin Reviewer gives WordPress administrators a read-only inventory of installed
-plugins, public WordPress.org maintenance signals, explainable abandonment
-indicators, and an autoloaded-options report. It does not deactivate plugins,
-delete options, or change site configuration.
+Plugin Reviewer gives WordPress administrators a read-only WordPress core
+integrity check, an inventory of installed plugins, public WordPress.org
+maintenance signals, explainable abandonment indicators, and an
+autoloaded-options report. It does not repair core, deactivate plugins, delete
+options, or change site configuration.
 
 > Download `plugin-reviewer.zip` from the release link above. Do **not** use
 > GitHub's automatically generated “Source code” archives; those contain
@@ -27,9 +28,21 @@ network capability.
 ## What to expect
 
 - The audit inventories standard, must-use, and drop-in plugins.
-- Public plugin slugs are sent to `api.wordpress.org` to retrieve public directory
-  metadata. No option values, usernames, URLs, content, telemetry, or report data
-  are transmitted.
+- Core files are compared with authoritative checksums for the installed WordPress
+  version and package locale. Checksum manifests are cached for 12 hours; local
+  files are scanned fresh when the report is generated.
+- Modified and missing expected files are reported. Unexpected files are
+  enumerated only under `wp-admin` and `wp-includes`; `wp-content` and unrelated
+  site-root files are intentionally excluded to avoid false positives.
+- Development/nightly builds are reported as unsupported. Missing checksums,
+  unreadable files, symlinks, and scan limits produce an explicit incomplete
+  status rather than a clean result. Custom distributions may therefore need
+  manual interpretation.
+- Public plugin slugs and the installed WordPress version/package locale are sent
+  to `api.wordpress.org` to retrieve directory metadata and core checksums. These
+  requests use WordPress HTTP handling and its normal user agent. No option
+  values, file paths, file contents, usernames, telemetry, or report data are
+  transmitted.
 - WordPress.org responses are cached for 12 hours and local option-analysis results
   for one hour. Uninstalling removes Plugin Reviewer transients.
 - The options report reads option names and serialized byte sizes. It never reads
@@ -53,6 +66,9 @@ runs faster.
   signed-in account can activate plugins.
 - **Directory details say “Unavailable”:** verify that the server can make outbound
   HTTPS requests to `api.wordpress.org`, then retry later.
+- **Core scan says “Incomplete” or “Unsupported”:** review its coverage notes.
+  Confirm the site can reach WordPress.org and that it uses an official stable
+  package. Symlinked or host-customized core layouts are not asserted clean.
 - **The page times out:** retry once to benefit from cached directory results. For
   unusually large stacks, check the host's PHP execution-time and memory limits.
 - **Export does not start:** sign in again and retry. CSV export requires the same
@@ -94,7 +110,8 @@ Python, tests, and development configuration cannot leak into the package.
 
 Before tagging a release, update the version in `plugin-reviewer.php` and the
 stable tag/changelog in `readme.txt`. Push a tag matching that version, such as
-`v0.1.0`. The GitHub Actions workflow lints PHP, verifies the tag/version match,
+`v0.2.0`. The GitHub Actions workflow lints PHP, runs isolated integrity fixtures,
+verifies the tag/version match,
 builds and validates `plugin-reviewer.zip`, and attaches it to a GitHub Release.
 
 ## Repository reference material

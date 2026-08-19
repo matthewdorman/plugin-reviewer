@@ -45,18 +45,27 @@ class Report {
 	private $options;
 
 	/**
+	 * Core integrity auditor.
+	 *
+	 * @var CoreIntegrityAuditor
+	 */
+	private $core;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param Inventory         $inventory Inventory collector.
-	 * @param WporgClient       $wporg Directory client.
-	 * @param AbandonmentScorer $scorer Scorer.
-	 * @param OptionsAuditor    $options Options auditor.
+	 * @param Inventory            $inventory Inventory collector.
+	 * @param WporgClient          $wporg Directory client.
+	 * @param AbandonmentScorer    $scorer Scorer.
+	 * @param OptionsAuditor       $options Options auditor.
+	 * @param CoreIntegrityAuditor $core    Core integrity auditor.
 	 */
-	public function __construct( Inventory $inventory, WporgClient $wporg, AbandonmentScorer $scorer, OptionsAuditor $options ) {
+	public function __construct( Inventory $inventory, WporgClient $wporg, AbandonmentScorer $scorer, OptionsAuditor $options, CoreIntegrityAuditor $core ) {
 		$this->inventory = $inventory;
 		$this->wporg     = $wporg;
 		$this->scorer    = $scorer;
 		$this->options   = $options;
+		$this->core      = $core;
 	}
 
 	/**
@@ -91,6 +100,7 @@ class Report {
 			'generated_at' => current_time( 'mysql' ),
 			'plugins'      => $plugins,
 			'options'      => $this->options->audit( $plugins ),
+			'core'         => $this->core->audit(),
 		);
 	}
 }

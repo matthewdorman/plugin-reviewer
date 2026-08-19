@@ -21,6 +21,9 @@ jobs:
       - name: Lint PHP
         run: find . -path './dist' -prune -o -type f -name '*.php' -print0 | xargs -0 -n1 php -l
 
+      - name: Run core integrity fixture tests
+        run: php tests/test-core-integrity-auditor.php
+
       - name: Verify tag matches plugin version
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash
